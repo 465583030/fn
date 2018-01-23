@@ -102,7 +102,7 @@ type Agent interface {
 	Enqueue(context.Context, *models.Call) error
 
 	GetAppByID(ctx context.Context, appID string) (*models.App, error)
-	GetApp(ctx context.Context, app *models.App) (*models.App, error)
+	GetAppByName(ctx context.Context, app *models.App) (*models.App, error)
 }
 
 type agent struct {
@@ -146,8 +146,8 @@ func New(da DataAccess) Agent {
 	return a
 }
 
-func (a *agent) GetApp(ctx context.Context, app *models.App) (*models.App, error) {
-	return a.da.GetApp(ctx, app)
+func (a *agent) GetAppByName(ctx context.Context, app *models.App) (*models.App, error) {
+	return a.da.GetAppByName(ctx, app)
 }
 
 func (a *agent) GetAppByID(ctx context.Context, appID string) (*models.App, error) {

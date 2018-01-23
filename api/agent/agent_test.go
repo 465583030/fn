@@ -100,7 +100,7 @@ func TestCallConfigurationRequest(t *testing.T) {
 
 	call, err := a.GetCall(
 		WithWriter(w), // XXX (reed): order matters [for now]
-		FromRequest(app, path, req),
+		FromRequest(app.Name, path, req),
 	)
 	if err != nil {
 		t.Fatal(err)
@@ -261,7 +261,7 @@ func TestAsyncCallHeaders(t *testing.T) {
 	contentLength := strconv.FormatInt(int64(len(payload)), 10)
 	config := map[string]string{
 		"FN_FORMAT":   format,
-		"FN_APP_NAME": app.ID,
+		"FN_APP_NAME": app.Name,
 		"FN_PATH":     path,
 		"FN_MEMORY":   strconv.Itoa(memory),
 		"FN_CPUS":     CPUs.String(),
@@ -434,15 +434,15 @@ func TestHTTPWithoutContentLengthWorks(t *testing.T) {
 	path := "/hello"
 	url := "http://127.0.0.1:8080/r/" + appName + path
 
+	app := &models.App{Name: appName}
+	app.SetDefaults()
 	// we need to load in app & route so that FromRequest works
 	ds := datastore.NewMockInit(
-		[]*models.App{
-			{Name: appName},
-		},
+		[]*models.App{app},
 		[]*models.Route{
 			{
 				Path:        path,
-				AppName:     appName,
+				AppID:       app.ID,
 				Image:       "fnproject/fn-test-utils",
 				Type:        "sync",
 				Format:      "http", // this _is_ the test

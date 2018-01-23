@@ -425,12 +425,12 @@ func Test(t *testing.T, dsf func(t *testing.T) models.Datastore) {
 		//}
 
 		// Testing app delete
-		err = ds.RemoveApp(ctx, &models.App{})
-		if err != models.ErrDatastoreEmptyAppName {
-			t.Fatalf("Test RemoveApp: expected error `%v`, but it was `%v`", models.ErrDatastoreEmptyAppName, err)
+		err = ds.RemoveApp(ctx, "")
+		if err != models.ErrDatastoreEmptyAppID {
+			t.Fatalf("Test RemoveApp: expected error `%v`, but it was `%v`", models.ErrDatastoreEmptyAppID, err)
 		}
 
-		err = ds.RemoveApp(ctx, testApp)
+		err = ds.RemoveApp(ctx, testApp.ID)
 		if err != nil {
 			t.Fatalf("Test RemoveApp: error: %s", err)
 		}
@@ -601,7 +601,7 @@ func Test(t *testing.T, dsf func(t *testing.T) models.Datastore) {
 		}
 
 		// Testing list routes
-		routes, err := ds.GetRoutesByApp(ctx, testApp, &models.RouteFilter{PerPage: 1})
+		routes, err := ds.GetRoutesByApp(ctx, testApp.ID, &models.RouteFilter{PerPage: 1})
 		if err != nil {
 			t.Fatalf("Test GetRoutesByApp: unexpected error %v", err)
 		}
@@ -614,7 +614,7 @@ func Test(t *testing.T, dsf func(t *testing.T) models.Datastore) {
 			t.Fatalf("Test GetRoutes: expected `app.Name` to be `%s` but it was `%s`", testRoute.Path, routes[0].Path)
 		}
 
-		routes, err = ds.GetRoutesByApp(ctx, testApp, &models.RouteFilter{Image: testRoute.Image, PerPage: 1})
+		routes, err = ds.GetRoutesByApp(ctx, testApp.ID, &models.RouteFilter{Image: testRoute.Image, PerPage: 1})
 		if err != nil {
 			t.Fatalf("Test GetRoutesByApp: unexpected error %v", err)
 		}
@@ -629,7 +629,7 @@ func Test(t *testing.T, dsf func(t *testing.T) models.Datastore) {
 
 		nre := &models.App{Name: "notreal"}
 		nre.SetDefaults()
-		routes, err = ds.GetRoutesByApp(ctx, nre, &models.RouteFilter{PerPage: 1})
+		routes, err = ds.GetRoutesByApp(ctx, nre.ID, &models.RouteFilter{PerPage: 1})
 		if err != nil {
 			t.Fatalf("Test GetRoutesByApp: error: %s", err)
 		}
@@ -652,9 +652,7 @@ func Test(t *testing.T, dsf func(t *testing.T) models.Datastore) {
 			t.Fatal(err)
 		}
 
-		//pga := &models.App{Name: testApp.Name}
-		//pga.SetDefaults()
-		routes, err = ds.GetRoutesByApp(ctx, testApp, &models.RouteFilter{PerPage: 1})
+		routes, err = ds.GetRoutesByApp(ctx, testApp.ID, &models.RouteFilter{PerPage: 1})
 		if err != nil {
 			t.Fatalf("Test GetRoutesByApp: error: %s", err)
 		}
@@ -664,7 +662,7 @@ func Test(t *testing.T, dsf func(t *testing.T) models.Datastore) {
 			t.Fatalf("Test GetRoutesByApp: expected `route.Path` to be `%s` but it was `%s`", testRoute.Path, routes[0].Path)
 		}
 
-		routes, err = ds.GetRoutesByApp(ctx, testApp, &models.RouteFilter{PerPage: 2, Cursor: routes[0].Path})
+		routes, err = ds.GetRoutesByApp(ctx, testApp.ID, &models.RouteFilter{PerPage: 2, Cursor: routes[0].Path})
 		if err != nil {
 			t.Fatalf("Test GetRoutesByApp: error: %s", err)
 		}
@@ -683,7 +681,7 @@ func Test(t *testing.T, dsf func(t *testing.T) models.Datastore) {
 			t.Fatal(err)
 		}
 
-		routes, err = ds.GetRoutesByApp(ctx, testApp, &models.RouteFilter{PerPage: 100})
+		routes, err = ds.GetRoutesByApp(ctx, testApp.ID, &models.RouteFilter{PerPage: 100})
 		if err != nil {
 			t.Fatalf("Test GetRoutesByApp: error: %s", err)
 		}
@@ -697,19 +695,17 @@ func Test(t *testing.T, dsf func(t *testing.T) models.Datastore) {
 		// TODO test prefix filtering
 
 		// Testing route delete
-		err = ds.RemoveRoute(ctx, &models.App{}, "")
-		if err != models.ErrDatastoreEmptyAppName {
-			t.Fatalf("Test RemoveRoute(empty app name): expected error `%v`, but it was `%v`", models.ErrDatastoreEmptyAppName, err)
+		err = ds.RemoveRoute(ctx, "", "")
+		if err != models.ErrDatastoreEmptyAppID {
+			t.Fatalf("Test RemoveRoute(empty app name): expected error `%v`, but it was `%v`", models.ErrDatastoreEmptyAppID, err)
 		}
 
-		//ra := &models.App{Name: "a"}
-		//ra.SetDefaults()
-		err = ds.RemoveRoute(ctx, testApp, "")
+		err = ds.RemoveRoute(ctx, testApp.ID, "")
 		if err != models.ErrDatastoreEmptyRoutePath {
 			t.Fatalf("Test RemoveRoute(empty route path): expected error `%v`, but it was `%v`", models.ErrDatastoreEmptyRoutePath, err)
 		}
 
-		err = ds.RemoveRoute(ctx, testApp, testRoute.Path)
+		err = ds.RemoveRoute(ctx, testApp.ID, testRoute.Path)
 		if err != nil {
 			t.Fatalf("Test RemoveApp: unexpected error: %v", err)
 		}

@@ -83,13 +83,12 @@ func (v *validator) UpdateApp(ctx context.Context, app *models.App) (*models.App
 }
 
 // name will never be empty.
-func (v *validator) RemoveApp(ctx context.Context, app *models.App) error {
-	err := checkApp(app)
-	if err != nil {
-		return err
+func (v *validator) RemoveApp(ctx context.Context, appID string) error {
+	if appID == "" {
+		return models.ErrDatastoreEmptyAppID
 	}
 
-	return v.Datastore.RemoveApp(ctx, app)
+	return v.Datastore.RemoveApp(ctx, appID)
 }
 
 // appName and routePath will never be empty.
@@ -105,13 +104,12 @@ func (v *validator) GetRoute(ctx context.Context, appID, routePath string) (*mod
 }
 
 // appName will never be empty
-func (v *validator) GetRoutesByApp(ctx context.Context, app *models.App, routeFilter *models.RouteFilter) (routes []*models.Route, err error) {
-	err = checkApp(app)
-	if err != nil {
-		return nil, err
+func (v *validator) GetRoutesByApp(ctx context.Context, appID string, routeFilter *models.RouteFilter) (routes []*models.Route, err error) {
+	if appID == "" {
+		return nil, models.ErrDatastoreEmptyAppID
 	}
 
-	return v.Datastore.GetRoutesByApp(ctx, app, routeFilter)
+	return v.Datastore.GetRoutesByApp(ctx, appID, routeFilter)
 }
 
 // route will never be nil and route's AppName and Path will never be empty.
@@ -135,17 +133,16 @@ func (v *validator) UpdateRoute(ctx context.Context, newroute *models.Route) (*m
 }
 
 // appName and routePath will never be empty.
-func (v *validator) RemoveRoute(ctx context.Context, app *models.App, routePath string) error {
-	err := checkApp(app)
-	if err != nil {
-		return err
+func (v *validator) RemoveRoute(ctx context.Context, appID string, routePath string) error {
+	if appID == "" {
+		return models.ErrDatastoreEmptyAppID
 	}
 
 	if routePath == "" {
 		return models.ErrDatastoreEmptyRoutePath
 	}
 
-	return v.Datastore.RemoveRoute(ctx, app, routePath)
+	return v.Datastore.RemoveRoute(ctx, appID, routePath)
 }
 
 // callID will never be empty.
