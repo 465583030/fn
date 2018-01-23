@@ -40,14 +40,20 @@ func checkRoute(route *models.Route) error {
 	return nil
 }
 
+func (v *validator) EnsureApp(ctx context.Context, appName string) (string, error) {
+	if appName == "" {
+		return "", models.ErrDatastoreEmptyAppName
+	}
+	return v.Datastore.EnsureApp(ctx, appName)
+}
+
 // name will never be empty.
-func (v *validator) GetApp(ctx context.Context, app *models.App) (*models.App, error) {
-	err := checkApp(app)
-	if err != nil {
-		return nil, err
+func (v *validator) GetAppByName(ctx context.Context, appName string) (*models.App, error) {
+	if appName == "" {
+		return nil, models.ErrDatastoreEmptyAppName
 	}
 
-	return v.Datastore.GetApp(ctx, app)
+	return v.Datastore.GetAppByName(ctx, appName)
 }
 
 func (v *validator) GetAppByID(ctx context.Context, appID string) (*models.App, error) {

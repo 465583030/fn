@@ -32,14 +32,15 @@ func (s *Server) handleRoutesPostPutPatch(c *gin.Context) {
 		handleErrorResponse(c, err)
 		return
 	}
+	appName := c.MustGet(api.App).(string)
 	if method != http.MethodPatch {
-		err = s.ensureApp(ctx, &wroute, method)
+		err = s.ensureApp(ctx, appName, &wroute, method)
 		if err != nil {
 			handleErrorResponse(c, err)
 			return
 		}
 	}
-	resp, err := s.ensureRoute(ctx, method, &wroute)
+	resp, err := s.ensureRoute(ctx, appName, method, &wroute)
 	if err != nil {
 		handleErrorResponse(c, err)
 		return
@@ -72,11 +73,10 @@ func (s *Server) changeRoute(ctx context.Context, wroute *models.RouteWrapper) e
 }
 
 // ensureApp will only execute if it is everything except PATCH
-func (s *Server) ensureRoute(ctx context.Context, method string, wroute *models.RouteWrapper) (routeResponse, error) {
+func (s *Server) ensureRoute(ctx context.Context, appName, method string, wroute *models.RouteWrapper) (routeResponse, error) {
 	bad := new(routeResponse)
 
-	initApp := &models.App{Name: wroute.Route.AppID}
-	app, err := s.Datastore().GetApp(ctx, initApp)
+	app, err := s.Datastore().GetAppByName(ctx, appName)
 	if err != nil {
 		return *bad, err
 	}
@@ -114,14 +114,13 @@ func (s *Server) ensureRoute(ctx context.Context, method string, wroute *models.
 }
 
 // ensureApp will only execute if it is on post or put. Patch is not allowed to create apps.
-func (s *Server) ensureApp(ctx context.Context, wroute *models.RouteWrapper, method string) error {
-	initApp := &models.App{Name: wroute.Route.AppID}
-	app, err := s.datastore.GetApp(ctx, initApp)
+func (s *Server) ensureApp(ctx context.Context, appName string, wroute *models.RouteWrapper, method string) error {
+	app, err := s.datastore.GetAppByName(ctx, appName)
 	if err != nil && err != models.ErrAppsNotFound {
 		return err
 	} else if app == nil {
 		// Create a new application assuming that /:app/ is an app name
-		newapp := &models.App{Name: wroute.Route.AppID}
+		newapp := &models.App{Name: appName}
 		newapp.SetDefaults()
 		if err = newapp.Validate(); err != nil {
 			return err
@@ -159,8 +158,6 @@ func bindRoute(c *gin.Context, method string, wroute *models.RouteWrapper) error
 	if wroute.Route == nil {
 		return models.ErrRoutesMissingNew
 	}
-
-	wroute.Route.AppID = c.MustGet(api.App).(string)
 
 	if method == http.MethodPut || method == http.MethodPatch {
 		p := path.Clean(c.MustGet(api.Path).(string))
