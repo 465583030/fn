@@ -40,11 +40,11 @@ func checkRoute(route *models.Route) error {
 	return nil
 }
 
-func (v *validator) EnsureApp(ctx context.Context, appName string) (string, error) {
+func (v *validator) GetAppID(ctx context.Context, appName string) (string, error) {
 	if appName == "" {
 		return "", models.ErrDatastoreEmptyAppName
 	}
-	return v.Datastore.EnsureApp(ctx, appName)
+	return v.Datastore.GetAppID(ctx, appName)
 }
 
 // name will never be empty.
