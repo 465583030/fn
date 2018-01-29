@@ -17,16 +17,6 @@ type validator struct {
 	models.Datastore
 }
 
-func checkApp(app *models.App) error {
-	if app == nil {
-		return models.ErrDatastoreEmptyApp
-	}
-	if app.Name == "" {
-		return models.ErrDatastoreEmptyAppName
-	}
-	return nil
-}
-
 func checkRoute(route *models.Route) error {
 	if route == nil {
 		return models.ErrDatastoreEmptyRoute
@@ -70,9 +60,11 @@ func (v *validator) GetApps(ctx context.Context, appFilter *models.AppFilter) ([
 
 // app and app.Name will never be nil/empty.
 func (v *validator) InsertApp(ctx context.Context, app *models.App) (*models.App, error) {
-	err := checkApp(app)
-	if err != nil {
-		return nil, err
+	if app == nil {
+		return nil, models.ErrDatastoreEmptyApp
+	}
+	if app.Name == "" {
+		return nil, models.ErrDatastoreEmptyAppName
 	}
 
 	return v.Datastore.InsertApp(ctx, app)
@@ -80,9 +72,11 @@ func (v *validator) InsertApp(ctx context.Context, app *models.App) (*models.App
 
 // app and app.Name will never be nil/empty.
 func (v *validator) UpdateApp(ctx context.Context, app *models.App) (*models.App, error) {
-	err := checkApp(app)
-	if err != nil {
-		return nil, err
+	if app == nil {
+		return nil, models.ErrDatastoreEmptyApp
+	}
+	if app.ID == "" {
+		return nil, models.ErrDatastoreEmptyAppID
 	}
 
 	return v.Datastore.UpdateApp(ctx, app)

@@ -55,6 +55,7 @@ func (a *App) Clone() *App {
 			clone.Config[k] = v
 		}
 	}
+	clone.ID = a.ID
 	return clone
 }
 
